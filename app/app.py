@@ -1,31 +1,44 @@
 import streamlit as st
-import cloudpickle as cp
+import pandas as pd
 import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 
-# Page settings
+# Page setup
 st.set_page_config(page_title="NeuroBalance AI", layout="centered")
 
-# ✅ Load models using cloudpickle
-with open("model/vata_model.pkl", "rb") as f:
-    model_vata = cp.load(f)
-
-with open("model/pitta_model.pkl", "rb") as f:
-    model_pitta = cp.load(f)
-
-with open("model/kapha_model.pkl", "rb") as f:
-    model_kapha = cp.load(f)
-
-with open("model/features.pkl", "rb") as f:
-    features = cp.load(f)
-
-# Styled title
+# Title
 st.markdown(
     "<h1 style='text-align: center; color: #f14e8c;'>🧠 NeuroBalance AI</h1>"
     "<h4 style='text-align: center; color: #e0e0e0;'>Decode your dosha balance with AI + Ayurveda</h4>",
     unsafe_allow_html=True
 )
 
-# Inputs
+# Load + train model from CSV
+@st.cache_data
+def train_models():
+    df = pd.read_csv("data/dosha_data.csv")
+    df = pd.get_dummies(df, columns=["region", "temp_feel"], drop_first=True)
+
+    X = df.drop(columns=["vata", "pitta", "kapha"])
+    y_vata = df["vata"]
+    y_pitta = df["pitta"]
+    y_kapha = df["kapha"]
+
+    X_train, _, yv_train, _ = train_test_split(X, y_vata, test_size=0.2)
+    _, _, yp_train, _ = train_test_split(X, y_pitta, test_size=0.2)
+    _, _, yk_train, _ = train_test_split(X, y_kapha, test_size=0.2)
+
+    vata_model = LinearRegression().fit(X_train, yv_train)
+    pitta_model = LinearRegression().fit(X_train, yp_train)
+    kapha_model = LinearRegression().fit(X_train, yk_train)
+
+    return vata_model, pitta_model, kapha_model, X.columns.tolist()
+
+model_vata, model_pitta, model_kapha, features = train_models()
+
+# Input
 st.markdown("### 🛌 Sleep & Daily Rhythm")
 sleep = st.slider("🛏️ Sleep Hours", 4.0, 10.0, 7.0)
 wake_time = st.slider("⏰ Wake-up Time (24hr)", 3, 10, 6)
@@ -42,7 +55,6 @@ st.markdown("### 🌡️ Environment")
 region = st.selectbox("🌍 Climate Region", ["hot", "cold", "humid"])
 temp_feel = st.selectbox("🌡️ Body Temperature Sensitivity", ["cold", "warm"])
 
-# One-hot encode
 region_hot = 1 if region == "hot" else 0
 region_humid = 1 if region == "humid" else 0
 temp_feel_warm = 1 if temp_feel == "warm" else 0
@@ -69,26 +81,14 @@ if st.button("🔮 Predict Wellness Profile"):
 
     st.success("✅ Tip: Adjust your lifestyle to maintain balance across doshas.")
 
-    st.markdown("---")
-    st.caption("✨ Based on Ayurvedic principles and your personalized inputs.")
-
-# Sidebar – About
+# Sidebar
 st.sidebar.markdown("## 💡 About This App")
 st.sidebar.markdown("""
-NeuroBalance AI is a mind–body intelligence tool powered by machine learning  
-and inspired by ancient Ayurvedic wisdom.  
-It helps you discover your internal balance through daily lifestyle patterns.
+This is a mind–body intelligence tool powered by machine learning  
+and inspired by ancient Ayurvedic wisdom.
 
 ### 🌿 Dosha Types
 - **Vata (Air)** → Movement, creativity, quickness  
 - **Pitta (Fire)** → Energy, digestion, leadership  
 - **Kapha (Earth)** → Calmness, strength, grounding  
-""")
-
-# Dosha info section
-st.markdown("### 🧾 Dosha Insights")
-st.markdown("""
-- **🌬️ Vata** → Creativity, energy flow, but excess causes anxiety.
-- **🔥 Pitta** → Sharp mind and digestion, excess causes anger or burnout.
-- **🌍 Kapha** → Calm and stable, but excess can lead to lethargy.
 """)

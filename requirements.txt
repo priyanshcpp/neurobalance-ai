@@ -2,5 +2,3 @@ streamlit
 scikit-learn
 pandas
 numpy
-cloudpickle
-python model/train_model.py
