@@ -7,7 +7,6 @@ isoduration==20.11.0
 jsonpointer==2.1
 jupyterlab==4.4.2
 matplotlib==3.9.2
-mkl-service==2.4.0
 notebook==7.4.2
 protobuf==4.25.3
 pyasn1-modules==0.2.8
