@@ -5,6 +5,12 @@ import numpy as np
 # Page settings
 st.set_page_config(page_title="NeuroBalance AI", layout="centered")
 
+# ✅ Load models
+model_vata = joblib.load("model/vata_model.pkl")
+model_pitta = joblib.load("model/pitta_model.pkl")
+model_kapha = joblib.load("model/kapha_model.pkl")
+features = joblib.load("model/features.pkl")  # Optional
+
 # Styled title
 st.markdown(
     "<h1 style='text-align: center; color: #f14e8c;'>🧠 NeuroBalance AI</h1>"
@@ -12,11 +18,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Load models
-model_vata = joblib.load("model/vata_model.pkl")
-model_pitta = joblib.load("model/pitta_model.pkl")
-model_kapha = joblib.load("model/kapha_model.pkl")
-features = joblib.load("model/features.pkl")
 
 # Inputs
 st.markdown("### 🛌 Sleep & Daily Rhythm")
