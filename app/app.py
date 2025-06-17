@@ -1,15 +1,22 @@
 import streamlit as st
-import joblib
+import cloudpickle as cp
 import numpy as np
 
 # Page settings
 st.set_page_config(page_title="NeuroBalance AI", layout="centered")
 
-# ✅ Load models
-model_vata = joblib.load("model/vata_model.pkl")
-model_pitta = joblib.load("model/pitta_model.pkl")
-model_kapha = joblib.load("model/kapha_model.pkl")
-features = joblib.load("model/features.pkl")  # Optional
+# ✅ Load models using cloudpickle
+with open("model/vata_model.pkl", "rb") as f:
+    model_vata = cp.load(f)
+
+with open("model/pitta_model.pkl", "rb") as f:
+    model_pitta = cp.load(f)
+
+with open("model/kapha_model.pkl", "rb") as f:
+    model_kapha = cp.load(f)
+
+with open("model/features.pkl", "rb") as f:
+    features = cp.load(f)
 
 # Styled title
 st.markdown(
@@ -17,7 +24,6 @@ st.markdown(
     "<h4 style='text-align: center; color: #e0e0e0;'>Decode your dosha balance with AI + Ayurveda</h4>",
     unsafe_allow_html=True
 )
-
 
 # Inputs
 st.markdown("### 🛌 Sleep & Daily Rhythm")

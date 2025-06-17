@@ -1,11 +1,11 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import r2_score
-import joblib
+import cloudpickle as cp
+import os
 
-# Load
+# Load and preprocess
 df = pd.read_csv("data/dosha_data.csv")
 df = pd.get_dummies(df, columns=["region", "temp_feel"], drop_first=True)
 
@@ -27,8 +27,17 @@ print("Vata R2:", r2_score(yv_test, model_vata.predict(X_test)))
 print("Pitta R2:", r2_score(yp_test, model_pitta.predict(X_test)))
 print("Kapha R2:", r2_score(yk_test, model_kapha.predict(X_test)))
 
-# Save models
-joblib.dump(model_vata, "model/vata_model.pkl")
-joblib.dump(model_pitta, "model/pitta_model.pkl")
-joblib.dump(model_kapha, "model/kapha_model.pkl")
-joblib.dump(X.columns.tolist(), "model/features.pkl")
+# Save using cloudpickle
+os.makedirs("model", exist_ok=True)
+
+with open("model/vata_model.pkl", "wb") as f:
+    cp.dump(model_vata, f)
+
+with open("model/pitta_model.pkl", "wb") as f:
+    cp.dump(model_pitta, f)
+
+with open("model/kapha_model.pkl", "wb") as f:
+    cp.dump(model_kapha, f)
+
+with open("model/features.pkl", "wb") as f:
+    cp.dump(X.columns.tolist(), f)
